@@ -3,9 +3,10 @@
  */
 package Servidor;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -15,38 +16,72 @@ import java.net.Socket;
  */
 public class Servidor {
 
-	
-	
-	
-	//----------------------------------------
-	// MAIN
-	//----------------------------------------
 	public static void main(String[] args) {
 		ServerSocket servidor = null;
-		Socket sc = null;
-		DataInputStream in;
-		DataOutputStream out;
-		final int PUERTO = 5000;
+		int PUERTO = 5000;
+		int numConexiones = 25;
 		
 		try {
-			servidor = new ServerSocket(PUERTO);
-			System.out.println("Servidor iniciado");
-			while (true) {
-				sc = servidor.accept();
+			servidor = new ServerSocket(PUERTO, numConexiones);
+			servidor.setReuseAddress(true);
+			
+			while(true) {
+				Socket cliente = servidor.accept();
 				
-				in = new DataInputStream(sc.getInputStream());
-				out = new DataOutputStream(sc.getOutputStream());
+				System.out.println("Nuevo cliente conectado" + cliente.getInetAddress().getHostAddress());
 				
-				String mensaje = in.readUTF();
-				System.out.println(mensaje);
+				ManejadorClientes socketCliente = new ManejadorClientes(cliente);
 				
-				out.writeUTF("Servidor");
-				
-				sc.close();
-				System.out.println("Cliente desconectado");
+				new Thread(socketCliente).start();
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
+		} finally {
+			if(servidor != null) {
+				try {
+					servidor.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	
+	private static class ManejadorClientes implements Runnable {
+		private final Socket socketCliente;
+		
+		public ManejadorClientes(Socket socket){
+			this.socketCliente = socket;
+		}
+		
+		public void run() {
+			PrintWriter out = null;
+			BufferedReader in = null;
+			
+			try {
+				out = new PrintWriter(socketCliente.getOutputStream(), true);
+				in = new BufferedReader(new InputStreamReader(socketCliente.getInputStream()));
+				
+				String mensajeCliente;
+				while((mensajeCliente = in.readLine()) != null) {
+					System.out.println("Mensaje del cliente: " + mensajeCliente);
+					out.println("El mensaje : \"" + mensajeCliente +"\" fue recibido por el servidor");
+				}
+			} catch(IOException e) {
+				e.printStackTrace();
+			} finally {
+				try {
+					if (out != null) {
+						out.close();
+					}
+					if(in != null) {
+						in.close();
+						socketCliente.close();
+					}
+				} catch(IOException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 	}
 
