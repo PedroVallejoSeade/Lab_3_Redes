@@ -65,7 +65,7 @@ public class Servidor {
 				String mensajeCliente;
 				while((mensajeCliente = in.readLine()) != null) {
 					System.out.println("Mensaje del cliente: " + mensajeCliente);
-					out.println("El mensaje : \"" + mensajeCliente +"\" fue recibido por el servidor");
+					out.println("El mensaje \"" + mensajeCliente +"\" fue recibido por el servidor");
 				}
 			} catch(IOException e) {
 				e.printStackTrace();
