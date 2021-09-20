@@ -3,10 +3,13 @@
  */
 package Cliente;
 
+import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.Scanner;
 
 /**
  * @author S2G11
@@ -14,33 +17,29 @@ import java.net.Socket;
  */
 public class Cliente {
 
-	
-	
-	
-	//----------------------------------------
-	// MAIN
-	//----------------------------------------
 	public static void main(String[] args) {
+		int PUERTO = 5000;
 		
-		final String HOST= "127.0.0.1";
-		final int PUERTO = 5000;
-		DataInputStream in;
-		DataOutputStream out;
-		
-		try {
-			Socket sc = new Socket(HOST, PUERTO);
-			in = new DataInputStream(sc.getInputStream());
-			out = new DataOutputStream(sc.getOutputStream());
+		try (Socket socket = new Socket("localhost", PUERTO)){
+			PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 			
-			out.writeUTF("Cliente");
+			BufferedReader in = new BufferedReader(new java.io.InputStreamReader(socket.getInputStream()));
 			
-			String mensaje = in.readUTF();
+			Scanner sc = new Scanner(System.in);
+			String mensaje = null;
 			
-			System.out.println(mensaje);
+			while(!"exit".equalsIgnoreCase(mensaje)) {
+				mensaje = sc.next();
+				
+				out.println(mensaje);
+				out.flush();
+				
+				System.out.println("El servidor responde:" + in.readLine());
+			}
 			
 			sc.close();
 			
-		} catch (Exception e) {
+		} catch(IOException e) {
 			e.printStackTrace();
 		}
 	}
