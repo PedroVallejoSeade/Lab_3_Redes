@@ -9,10 +9,10 @@ TAMANIO = 1024
 FORMATO = "utf-8"
 
 
-def manejarCliente(conn, addr, NOM_ARCHIVO, TAM_ARCHIVO):
+def manejarCliente(conn, addr, NOM_ARCHIVO, TAM_ARCHIVO, ID):
     print("[+] Nueva conexion {addr} conectado")
 
-    data = f"{NOM_ARCHIVO}_{TAM_ARCHIVO}"
+    data = f"{NOM_ARCHIVO}_{TAM_ARCHIVO}_{ID}"
     conn.send(data.encode(FORMATO))
     mensaje = conn.recv(TAMANIO).decode(FORMATO)
     print("[-] El cliente responde: " + mensaje)
@@ -38,6 +38,8 @@ def main():
         else:
             print(f"{numConexiones} no es un numero valido de conexiones")
 
+    NUM_CONEXIONES = int(numConexiones)
+
     archivoValido = False
     while(not archivoValido):
         archivo = input("Escoja entre el archivo 1(100MB) o 2(250MB):")
@@ -57,14 +59,25 @@ def main():
     servidor.listen()
     print("[+] Servidor escuchando ....")
 
-    while True:
+    threads = []
+
+    NUM_CLIENTES = 0
+    while (NUM_CLIENTES < NUM_CONEXIONES):
         conn, addr = servidor.accept()
+        NUM_CLIENTES += 1
         print(f"[+] Cliente conectado desde {addr[0]}:{addr[1]}")
         print(f"{NOM_ARCHIVO}_{TAM_ARCHIVO}")
         thread = threading.Thread(target=manejarCliente, args=(
-            conn, addr, NOM_ARCHIVO, TAM_ARCHIVO))
-        thread.start()
-        print(f"[+] Conexiones activas: {threading.active_count()-1}")
+            conn, addr, NOM_ARCHIVO, TAM_ARCHIVO, NUM_CLIENTES))
+        threads.append(thread)
+        # thread.start()
+        print(f"[+] Threads activos: {threading.active_count()-1}")
+        print(f"[+] Clientes conectados: {NUM_CLIENTES}")
+
+    i = 0
+    while(i < NUM_CLIENTES):
+        threads[i].start()
+        i += 1
 
     servidor.close()
 
