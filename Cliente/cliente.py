@@ -1,4 +1,6 @@
 import socket
+import logging
+from datetime import datetime
 
 IP = socket.gethostbyname(socket.gethostname())
 PUERTO = 8888
@@ -8,6 +10,9 @@ FORMATO = "utf-8"
 
 
 def main():
+    dateTimeObj = datetime.now()
+    logging.basicConfig(
+        filename=f"Logs/{dateTimeObj.year}-{dateTimeObj.month}-{dateTimeObj.day}-{dateTimeObj.hour}-{dateTimeObj.minute}-{dateTimeObj.second}.log", level=logging.INFO)
 
     cliente = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     cliente.connect(DIRECCION)
