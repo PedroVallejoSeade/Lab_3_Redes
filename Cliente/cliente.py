@@ -17,11 +17,12 @@ def main():
     NOM_ARCHIVO = item[0]
     TAM_ARCHIVO = int(item[1])
     ID = item[2]
+    NUM_CONEXIONES = item[3]
 
     print("[+] Nombre y tamanio del archivo recivido del servidor")
     cliente.send("Nombre y tamanio del archivo recivido".encode(FORMATO))
 
-    with open(f"recv_{NOM_ARCHIVO}_{ID}", "w") as f:
+    with open(f"ArchivosRecibidos/{ID}-Prueba-{NUM_CONEXIONES}", "w") as f:
         while True:
             data = cliente.recv(TAMANIO).decode(FORMATO)
 

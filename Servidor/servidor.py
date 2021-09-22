@@ -9,10 +9,10 @@ TAMANIO = 1024
 FORMATO = "utf-8"
 
 
-def manejarCliente(conn, addr, NOM_ARCHIVO, TAM_ARCHIVO, ID):
+def manejarCliente(conn, addr, NOM_ARCHIVO, TAM_ARCHIVO, ID, NUM_CONEXIONES):
     print("[+] Nueva conexion {addr} conectado")
 
-    data = f"{NOM_ARCHIVO}_{TAM_ARCHIVO}_{ID}"
+    data = f"{NOM_ARCHIVO}_{TAM_ARCHIVO}_{ID}_{NUM_CONEXIONES}"
     conn.send(data.encode(FORMATO))
     mensaje = conn.recv(TAMANIO).decode(FORMATO)
     print("[-] El cliente responde: " + mensaje)
@@ -68,7 +68,7 @@ def main():
         print(f"[+] Cliente conectado desde {addr[0]}:{addr[1]}")
         print(f"{NOM_ARCHIVO}_{TAM_ARCHIVO}")
         thread = threading.Thread(target=manejarCliente, args=(
-            conn, addr, NOM_ARCHIVO, TAM_ARCHIVO, NUM_CLIENTES))
+            conn, addr, NOM_ARCHIVO, TAM_ARCHIVO, NUM_CLIENTES, NUM_CONEXIONES))
         threads.append(thread)
         # thread.start()
         print(f"[+] Threads activos: {threading.active_count()-1}")
