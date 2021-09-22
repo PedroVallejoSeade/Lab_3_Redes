@@ -66,11 +66,11 @@ def main():
     while(not archivoValido):
         archivo = input("Escoja entre el archivo 1(100MB) o 2(250MB):")
         if(int(archivo) == 2):
-            NOM_ARCHIVO = "250MB.txt"
+            NOM_ARCHIVO = "ArchivosEnvio/250MB.txt"
             TAM_ARCHIVO = os.path.getsize(NOM_ARCHIVO)
             archivoValido = True
         elif(int(archivo) == 1):
-            NOM_ARCHIVO = "100MB.txt"
+            NOM_ARCHIVO = "ArchivosEnvio/100MB.txt"
             TAM_ARCHIVO = os.path.getsize(NOM_ARCHIVO)
             archivoValido = True
         else:
