@@ -22,6 +22,8 @@ def manejarCliente(conn, addr, NOM_ARCHIVO, TAM_ARCHIVO, ID, NUM_CONEXIONES, has
     mensaje = conn.recv(TAMANIO).decode(FORMATO)
     print("[-] El cliente responde: " + mensaje)
 
+    numPaquetesEnviados = 0
+    tiempoTranferenciaI = datetime.now()
     with open(NOM_ARCHIVO, "r") as f:
         while True:
             data = f.read(TAMANIO)
@@ -31,9 +33,17 @@ def manejarCliente(conn, addr, NOM_ARCHIVO, TAM_ARCHIVO, ID, NUM_CONEXIONES, has
 
             conn.send(data.encode(FORMATO))
             mensaje = conn.recv(TAMANIO).decode(FORMATO)
+            numPaquetesEnviados += 1
+    tiempoTranferenciaF = datetime.now()
 
-    # mensaje = conn.recv(TAMANIO).decode(FORMATO)
-    print(mensaje)
+    tiempoTranferencia = tiempoTranferenciaF-tiempoTranferenciaI
+    logging.info(
+        f'El tiempo de transferencia del cliente {ID} fue de: {tiempoTranferencia}')
+
+    logging.info(
+        f'El numero de paquetes enviado al cliente {ID} fue: {numPaquetesEnviados}')
+    logging.info(
+        f'El numero de bytes enviado al cliente {ID} fue: {numPaquetesEnviados*TAMANIO}')
     conn.close()
 
 
@@ -97,11 +107,9 @@ def main():
         conn, addr = servidor.accept()
         NUM_CLIENTES += 1
         print(f"[+] Cliente conectado desde {addr[0]}:{addr[1]}")
-        print(f"{NOM_ARCHIVO}_{TAM_ARCHIVO}")
         thread = threading.Thread(target=manejarCliente, args=(
             conn, addr, NOM_ARCHIVO, TAM_ARCHIVO, NUM_CLIENTES, NUM_CONEXIONES, hashServidor, addr[0], {addr[1]}))
         threads.append(thread)
-        # thread.start()
         print(f"[+] Threads activos: {threading.active_count()-1}")
         print(f"[+] Clientes conectados: {NUM_CLIENTES}")
 

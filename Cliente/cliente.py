@@ -29,7 +29,8 @@ def main():
 
     print("[+] Nombre y tamanio del archivo recivido del servidor")
     cliente.send("Nombre y tamanio del archivo recivido".encode(FORMATO))
-
+    
+    tiempoTranferenciaI = datetime.now()
     with open(f"ArchivosRecibidos/{ID}-Prueba-{NUM_CONEXIONES}", "w") as f:
         while True:
             data = cliente.recv(TAMANIO).decode(FORMATO)
@@ -39,6 +40,9 @@ def main():
 
             f.write(data)
             cliente.send("Archivo recivido".encode(FORMATO))
+    tiempoTranferenciaF = datetime.now()
+
+    tiempoTranferencia = tiempoTranferenciaF-tiempoTranferenciaI
 
     ## HASHING ##
     BUF_SIZE = 1024  # lets read stuff in 64kb chunks!
@@ -53,17 +57,15 @@ def main():
             md5.update(data)
 
     hashCliente = md5.hexdigest()
-    print(hashCliente)
 
+    ## HASHING ##
     if(hashCliente == hashServidor):
         print(
             "[+] Se comparo los hashing del servidor y del cliente y el archivo llego correctamente")
-        # cliente.send('ENVIO EXITOSO'.encode(FORMATO))
+        cliente.send('ENVIO EXITOSO'.encode(FORMATO))
     else:
         print("[+] Se comparo los hashing del servidor y del cliente y el archivo NO llego correctamente")
-        # cliente.send('ENVIO FALLIDO'.encode(FORMATO))
-
-    ## HASHING ##
+        cliente.send('ENVIO FALLIDO'.encode(FORMATO))
 
     cliente.close()
 
