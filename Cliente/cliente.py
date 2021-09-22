@@ -29,7 +29,7 @@ def main():
 
     print("[+] Nombre y tamanio del archivo recivido del servidor")
     cliente.send("Nombre y tamanio del archivo recivido".encode(FORMATO))
-    
+
     tiempoTranferenciaI = datetime.now()
     with open(f"ArchivosRecibidos/{ID}-Prueba-{NUM_CONEXIONES}", "w") as f:
         while True:
