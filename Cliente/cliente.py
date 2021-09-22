@@ -1,6 +1,7 @@
 import socket
 import logging
 from datetime import datetime
+import hashlib
 
 IP = socket.gethostbyname(socket.gethostname())
 PUERTO = 8888
@@ -23,6 +24,8 @@ def main():
     TAM_ARCHIVO = int(item[1])
     ID = item[2]
     NUM_CONEXIONES = item[3]
+    hashServidor = item[4]
+    print(hashServidor)
 
     print("[+] Nombre y tamanio del archivo recivido del servidor")
     cliente.send("Nombre y tamanio del archivo recivido".encode(FORMATO))
@@ -36,6 +39,31 @@ def main():
 
             f.write(data)
             cliente.send("Archivo recivido".encode(FORMATO))
+
+    ## HASHING ##
+    BUF_SIZE = 1024  # lets read stuff in 64kb chunks!
+
+    md5 = hashlib.md5()
+
+    with open(f"ArchivosRecibidos/{ID}-Prueba-{NUM_CONEXIONES}", 'rb') as f:
+        while True:
+            data = f.read(BUF_SIZE)
+            if not data:
+                break
+            md5.update(data)
+
+    hashCliente = md5.hexdigest()
+    print(hashCliente)
+
+    if(hashCliente == hashServidor):
+        print(
+            "[+] Se comparo los hashing del servidor y del cliente y el archivo llego correctamente")
+        # cliente.send('ENVIO EXITOSO'.encode(FORMATO))
+    else:
+        print("[+] Se comparo los hashing del servidor y del cliente y el archivo NO llego correctamente")
+        # cliente.send('ENVIO FALLIDO'.encode(FORMATO))
+
+    ## HASHING ##
 
     cliente.close()
 

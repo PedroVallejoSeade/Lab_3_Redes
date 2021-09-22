@@ -1,6 +1,9 @@
 import socket
 import threading
 import os
+import logging
+from datetime import datetime
+import hashlib
 
 IP = socket.gethostbyname(socket.gethostname())
 PUERTO = 8888
@@ -9,10 +12,12 @@ TAMANIO = 1024
 FORMATO = "utf-8"
 
 
-def manejarCliente(conn, addr, NOM_ARCHIVO, TAM_ARCHIVO, ID, NUM_CONEXIONES):
-    print("[+] Nueva conexion {addr} conectado")
+def manejarCliente(conn, addr, NOM_ARCHIVO, TAM_ARCHIVO, ID, NUM_CONEXIONES, hashServidor, ip, puerto):
+    logging.info(f'Se conecto el cliente {ID} desde {ip}:{puerto}')
 
-    data = f"{NOM_ARCHIVO}_{TAM_ARCHIVO}_{ID}_{NUM_CONEXIONES}"
+    print("[+] Nueva conexion {addr}: conectado")
+
+    data = f"{NOM_ARCHIVO}_{TAM_ARCHIVO}_{ID}_{NUM_CONEXIONES}_{hashServidor}"
     conn.send(data.encode(FORMATO))
     mensaje = conn.recv(TAMANIO).decode(FORMATO)
     print("[-] El cliente responde: " + mensaje)
@@ -26,10 +31,17 @@ def manejarCliente(conn, addr, NOM_ARCHIVO, TAM_ARCHIVO, ID, NUM_CONEXIONES):
 
             conn.send(data.encode(FORMATO))
             mensaje = conn.recv(TAMANIO).decode(FORMATO)
+
+    # mensaje = conn.recv(TAMANIO).decode(FORMATO)
+    print(mensaje)
     conn.close()
 
 
 def main():
+    dateTimeObj = datetime.now()
+    logging.basicConfig(
+        filename=f"Logs/{dateTimeObj.year}-{dateTimeObj.month}-{dateTimeObj.day}-{dateTimeObj.hour}-{dateTimeObj.minute}-{dateTimeObj.second}.log", level=logging.INFO)
+
     numValidoConexiones = False
     while(not numValidoConexiones):
         numConexiones = input("Numero de conexiones (1-25):")
@@ -54,6 +66,25 @@ def main():
         else:
             print("El archivo escogido no es valido")
 
+    ## HASHING ##
+    BUF_SIZE = 1024  # lets read stuff in 64kb chunks!
+
+    md5 = hashlib.md5()
+
+    with open(NOM_ARCHIVO, 'rb') as f:
+        while True:
+            data = f.read(BUF_SIZE)
+            if not data:
+                break
+            md5.update(data)
+
+    hashServidor = md5.hexdigest()
+
+    ## HASHING ##
+
+    logging.info(f'El nombre del archivo envidado : {NOM_ARCHIVO}')
+    logging.info(f'El tamanio del archivo enviado es : {TAM_ARCHIVO}')
+
     servidor = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     servidor.bind(DIRECCION)
     servidor.listen()
@@ -68,7 +99,7 @@ def main():
         print(f"[+] Cliente conectado desde {addr[0]}:{addr[1]}")
         print(f"{NOM_ARCHIVO}_{TAM_ARCHIVO}")
         thread = threading.Thread(target=manejarCliente, args=(
-            conn, addr, NOM_ARCHIVO, TAM_ARCHIVO, NUM_CLIENTES, NUM_CONEXIONES))
+            conn, addr, NOM_ARCHIVO, TAM_ARCHIVO, NUM_CLIENTES, NUM_CONEXIONES, hashServidor, addr[0], {addr[1]}))
         threads.append(thread)
         # thread.start()
         print(f"[+] Threads activos: {threading.active_count()-1}")
