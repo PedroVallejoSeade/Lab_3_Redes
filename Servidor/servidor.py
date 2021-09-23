@@ -77,7 +77,7 @@ def main():
             print("El archivo escogido no es valido")
 
     ## HASHING ##
-    BUF_SIZE = 1024  # lets read stuff in 64kb chunks!
+    BUF_SIZE = 1024
 
     md5 = hashlib.md5()
 

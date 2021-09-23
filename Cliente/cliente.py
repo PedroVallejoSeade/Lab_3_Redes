@@ -54,7 +54,7 @@ def main():
     tiempoTranferencia = tiempoTranferenciaF-tiempoTranferenciaI
 
     ## HASHING ##
-    BUF_SIZE = 1024  # lets read stuff in 64kb chunks!
+    BUF_SIZE = 1024
 
     md5 = hashlib.md5()
 
