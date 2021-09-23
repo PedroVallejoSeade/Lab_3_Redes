@@ -42,8 +42,9 @@ python3 servidor.py
 cd Cliente
 ```
 
-4. Abrir el numero de terminales segun el numero ingresado en el punto 7 del servidor (Puede ser en VSCode)
-5. Correr el siguiente comando en todas las terminales:
+4. Campiar la constante IP en cliente.py a la IP del servidor
+5. Abrir el numero de terminales segun el numero ingresado en el punto 7 del servidor (Puede ser en VSCode)
+6. Correr el siguiente comando en todas las terminales:
 
 ```bash
 python3 cliente.py
