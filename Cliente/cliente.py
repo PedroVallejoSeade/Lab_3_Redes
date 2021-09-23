@@ -25,11 +25,19 @@ def main():
     ID = item[2]
     NUM_CONEXIONES = item[3]
     hashServidor = item[4]
-    print(hashServidor)
+    ip = item[5]
+    puerto = item[6]
+
+    logging.info(
+        f"El nombre del archivo recivido es: {NOM_ARCHIVO} con un tamaño de {TAM_ARCHIVO}")
+
+    logging.info(
+        f"Este es el vliente {ID} conectado desde la siguiente direccion: {ip} : {puerto}")
 
     print("[+] Nombre y tamanio del archivo recivido del servidor")
     cliente.send("Nombre y tamanio del archivo recivido".encode(FORMATO))
 
+    numPaquetesRecividos = 0
     tiempoTranferenciaI = datetime.now()
     with open(f"ArchivosRecibidos/{ID}-Prueba-{NUM_CONEXIONES}", "w") as f:
         while True:
@@ -40,6 +48,7 @@ def main():
 
             f.write(data)
             cliente.send("Archivo recivido".encode(FORMATO))
+            numPaquetesRecividos += 1
     tiempoTranferenciaF = datetime.now()
 
     tiempoTranferencia = tiempoTranferenciaF-tiempoTranferenciaI
@@ -63,9 +72,17 @@ def main():
         print(
             "[+] Se comparo los hashing del servidor y del cliente y el archivo llego correctamente")
         cliente.send('ENVIO EXITOSO'.encode(FORMATO))
+        logging.info('La entrega del archivo fue ecxitosa')
     else:
         print("[+] Se comparo los hashing del servidor y del cliente y el archivo NO llego correctamente")
         cliente.send('ENVIO FALLIDO'.encode(FORMATO))
+        logging.info('La entrega del archivo NO fue ecxitosa')
+
+    logging.info(f'El tiempo de transferencia fue de: {tiempoTranferencia}')
+    logging.info(
+        f'El numero de paquetes recibidos fue: {numPaquetesRecividos}')
+    logging.info(
+        f"El numero de bytes recibidos fue: {numPaquetesRecividos*TAMANIO}")
 
     cliente.close()
 

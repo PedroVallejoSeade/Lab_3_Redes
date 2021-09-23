@@ -17,7 +17,7 @@ def manejarCliente(conn, addr, NOM_ARCHIVO, TAM_ARCHIVO, ID, NUM_CONEXIONES, has
 
     print("[+] Nueva conexion {addr}: conectado")
 
-    data = f"{NOM_ARCHIVO}_{TAM_ARCHIVO}_{ID}_{NUM_CONEXIONES}_{hashServidor}"
+    data = f"{NOM_ARCHIVO}_{TAM_ARCHIVO}_{ID}_{NUM_CONEXIONES}_{hashServidor}_{ip}_{puerto}"
     conn.send(data.encode(FORMATO))
     mensaje = conn.recv(TAMANIO).decode(FORMATO)
     print("[-] El cliente responde: " + mensaje)
