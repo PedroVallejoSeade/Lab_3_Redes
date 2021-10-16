@@ -8,18 +8,38 @@ if __name__ == '__main__':
 
     server.bind((host, port))
 
-    while True:
-        data, addr = server.recvfrom(1024)
-        data = data.decode("utf-8")
+    # while True:
+    #     data, addr = server.recvfrom(1024)
+    #     data = data.decode("utf-8")
 
-        if data == "!EXIT":
-            print("Client disconnected")
-            break
+    #     if data == "!EXIT":
+    #         print("Client disconnected")
+    #         break
 
-        print(f"Client: {data}")
+    #     print(f"Client: {data}")
 
-        data = data.upper()
-        data = data.encode("utf-8")
-        server.sendto(data, addr)
+    #     data = data.upper()
+    #     data = data.encode("utf-8")
+    #     server.sendto(data, addr)
+
+    data, addr = server.recvfrom(1024)
+    data = data.decode("utf-8")
+    print(data)
+
+    data = '[-] Conexion con el servidor exitosa'
+    data = data.encode("utf-8")
+    server.sendto(data, addr)
+
+    with open("ArchivosEnvio/100MB.txt", "r") as f:
+        while True:
+            data = f.read(1024)
+            data = data.encode('utf-8')
+            print('ACAAA')
+
+            if not data:
+                server.sendto(data, addr)
+                break
+
+            server.sendto(data, addr)
 
     server.close()
