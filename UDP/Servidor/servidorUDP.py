@@ -1,4 +1,19 @@
 import socket
+import threading
+
+
+def manejadorCliente(servidor, addr):
+    with open("ArchivosEnvio/100MB.txt", "r") as f:
+        while True:
+            data = f.read(1024)
+            data = data.encode('utf-8')
+
+            if not data:
+                servidor.sendto(data, addr)
+                break
+
+            server.sendto(data, addr)
+
 
 if __name__ == '__main__':
     host = "127.0.0.1"
@@ -7,39 +22,55 @@ if __name__ == '__main__':
     server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
     server.bind((host, port))
+    print('[+] Servidor UDP inicializado')
 
-    # while True:
-    #     data, addr = server.recvfrom(1024)
-    #     data = data.decode("utf-8")
+    numConexionesAct = 0
+    numConexionesReq = 0
+    numConexionesVal = False
 
-    #     if data == "!EXIT":
-    #         print("Client disconnected")
-    #         break
+    while(not numConexionesVal):
+        numConexiones = input("[+] Ingrese el numero de clientes (1-25):")
+        if(int(numConexiones) >= 1 and int(numConexiones) <= 25):
+            numConexionesVal = True
+        else:
+            print(f"[+] {numConexiones} no es un numero valido de conexiones")
 
-    #     print(f"Client: {data}")
+    numConexionesReq = int(numConexiones)
+    print(
+        f'[+] Se necesitan {numConexiones} para empezar la transferencia de archivos')
 
-    #     data = data.upper()
-    #     data = data.encode("utf-8")
-    #     server.sendto(data, addr)
+    # TODO Se necesita hacer la parte de escoger un archivo
 
-    data, addr = server.recvfrom(1024)
-    data = data.decode("utf-8")
-    print(data)
+    # TODO Se necesita hacer la parte de hacer el hashing del archivo
 
-    data = '[-] Conexion con el servidor exitosa'
-    data = data.encode("utf-8")
-    server.sendto(data, addr)
+    hilos = []
 
-    with open("ArchivosEnvio/100MB.txt", "r") as f:
-        while True:
-            data = f.read(1024)
-            data = data.encode('utf-8')
-            print('ACAAA')
+    while(numConexionesAct < numConexionesReq):
+        data, addr = server.recvfrom(1024)
+        data = data.decode("utf-8")
+        print(data)
+        numConexionesAct += 1
+        print(f"[+] Inicializacion con el cliente {numConexionesAct} exitosa")
 
-            if not data:
-                server.sendto(data, addr)
-                break
+        data = '[-] Inicializacion con el servidor exitosa'
+        data = data.encode("utf-8")
+        server.sendto(data, addr)
 
-            server.sendto(data, addr)
+        hilo = threading.Thread(target=manejadorCliente, args=(server, addr))
+        hilos.append(hilo)
 
-    server.close()
+    i = 0
+    while (i < numConexionesAct):
+        hilos[i].start()
+        i += 1
+
+    # with open("ArchivosEnvio/100MB.txt", "r") as f:
+    #     while True:
+    #         data = f.read(1024)
+    #         data = data.encode('utf-8')
+
+    #         if not data:
+    #             server.sendto(data, addr)
+    #             break
+
+    #         server.sendto(data, addr)
